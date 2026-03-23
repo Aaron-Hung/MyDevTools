@@ -171,7 +171,7 @@ fi
 # DevTools 專案路徑與遠端來源：
 # 後續會把此 repo 當成 dotfiles 與安裝腳本的單一來源。
 DEVTOOL_REPOSITORY=~/Documents/projects/MyDevTools
-DEVTOOL_REMOTE_REPOSITORY="https://github.com/QiFenPocket/MyDevTools"
+DEVTOOL_REMOTE_REPOSITORY="https://github.com/Aaron-Hung/MyDevTools"
 
 mkdir -p $DEVTOOL_REPOSITORY
 
