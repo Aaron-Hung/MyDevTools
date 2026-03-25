@@ -209,16 +209,17 @@ ohai "Downloading and installing Mac DevTool..."
   ln -s $PWD/Mac/ssh ~/.ssh
   rm -rf ~/.myzsh
   ln -s $PWD/Mac/zsh ~/.myzsh
+  # 刪除所有可能的舊路徑
+  rm -rf ~/.zinit
+  rm -rf ~/.local/share/zinit
   mkdir -p ~/.aws
   rm -rf ~/.aws/config
   ln $PWD/Mac/aws/config ~/.aws/config
   
   # 步驟 5：安裝平台相依元件與套件管理工具。
   # - Rosetta：讓 Apple Silicon 可執行部分 x86_64 工具
-  # - zinit：zsh plugin manager
   # - homebrew.sh：你的自訂 brew 安裝/設定流程
   execute "softwareupdate" "--install-rosetta" "--agree-to-license"
-  sh -c "$(curl -fsSL https://git.io/zinit-install)"
   sh $PWD/Mac/homebrew.sh
 
   # 步驟 6：系統偏好設定 (System Preferences)

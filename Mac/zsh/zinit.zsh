@@ -1,20 +1,22 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 ### Added by Zinit's installer
-if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+if [[ ! -f "$ZINIT_HOME/zinit.zsh" ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}Zinit%F{220} (zdharma-continuum)…%f"
+    command mkdir -p "$(dirname $ZINIT_HOME)"
+    
+    # 執行 clone 並根據結果輸出
+    if command git clone https://github.com/zdharma-continuum/zinit "$ZINIT_HOME"; then
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b"
+    else
+        print -P "%F{160}▓▒░ The clone has failed. Please check your internet connection.%f%b"
+        # 如果失敗，不應該繼續 source，直接回傳防止報錯
+        return 1
+    fi
 fi
 
-source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+# 只有在檔案存在時才 source
+source "$ZINIT_HOME/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
@@ -25,7 +27,8 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light-mode for \
     zdharma-continuum/zinit-annex-as-monitor \
     zdharma-continuum/zinit-annex-bin-gem-node \
-    zdharma-continuum/zinit-annex-patch-dl
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust
 
 zinit ice lucid wait='0' atinit='zpcompinit' cache
 zinit light zdharma/fast-syntax-highlighting
