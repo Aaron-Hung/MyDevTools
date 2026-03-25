@@ -1,13 +1,18 @@
 [[ ! -f /opt/homebrew/bin/brew ]] || eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# nvm load too slow, should add to plist
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-# [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+# Lazy load nvm to speed up terminal startup
+export NVM_DIR="$HOME/.nvm"
+zsh-defer-nvm() {
+  # Remove the temporary wrapper functions
+  unfunction node npm nvm npx yarn 2>/dev/null
+  # Load the real nvm
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+}
 
-PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-
-printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh"}}\x9c'
-
-eval "$(pyenv init -)"
+# Create wrapper functions for node-related commands
+node npm nvm npx yarn() {
+  zsh-defer-nvm
+  # Execute the original command that was just run
+  "$0" "$@"
+}

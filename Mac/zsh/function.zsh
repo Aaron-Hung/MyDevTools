@@ -1,11 +1,3 @@
-to-bpe-workstation-1() {
-  establish_proxy bpe-workstation-1 5050 8080
-}
-
-to-kkbox-corp-bpe-workstation() {
-  establish_proxy kkbox-corp-bpe-workstation 5050 8080
-}
-
 establish_proxy() {
   readonly ssh_server_url=${1:?"The ssh server url/ip must specified."}
   readonly ssh_tunnel_port=${2:?"The ssh tunnel port must specified."}
@@ -27,10 +19,6 @@ disestablish_proxy() {
   tmux kill-session -t http_proxy
 
   echo "http proxy has disestablished"
-}
-
-connect_to_first_pod_by_name() {
-  kubectl exec --stdin --tty $(kubectl get pods | grep "$1") -- /bin/bash
 }
 
 to_kfa_db() {
@@ -104,12 +92,21 @@ aws_set_credential() {
   export AWS_SESSION_TOKEN=$(echo $credential | jq -r .Credentials.SessionToken)
 }
 
-avl() {
-  data_dir="/tmp/chrome.aws.$1"
-  mkdir -p $data_dir
-  aws-vault login -s $1 | xargs /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --args --lang="en_us" --no-first-run --new-window --disk-cache=$data_dir --user-data-dir=$data_dir --enable-chrome-browser-cloud-management
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    if [[ $BUFFER == sudo\ * ]]; then
+        LBUFFER="${LBUFFER#sudo }"
+    elif [[ $BUFFER == $EDITOR\ * ]]; then
+        LBUFFER="${LBUFFER#$EDITOR }"
+        LBUFFER="sudoedit $LBUFFER"
+    elif [[ $BUFFER == sudoedit\ * ]]; then
+        LBUFFER="${LBUFFER#sudoedit }"
+        LBUFFER="$EDITOR $LBUFFER"
+    else
+        LBUFFER="sudo $LBUFFER"
+    fi
 }
-
-compress() {
-ffmpeg -i $1 -r 12 -an $2
-}
+zle -N sudo-command-line
+# Defined shortcut keys: [Esc] [Esc]
+bindkey "\e\e" sudo-command-line
+bindkey -M vicmd '\e\e' sudo-command-line
