@@ -217,7 +217,44 @@ ohai "Downloading and installing Mac DevTool..."
   # - Rosetta：讓 Apple Silicon 可執行部分 x86_64 工具
   # - zinit：zsh plugin manager
   # - homebrew.sh：你的自訂 brew 安裝/設定流程
-  softwareupdate --install-rosetta
+  execute "softwareupdate" "--install-rosetta" "--agree-to-license"
   sh -c "$(curl -fsSL https://git.io/zinit-install)"
   sh $PWD/Mac/homebrew.sh
+
+  # 步驟 6：系統偏好設定 (System Preferences)
+  ohai "Configuring system settings..."
+  # 設定主機名稱（需 sudo）
+  execute_sudo "/usr/sbin/scutil" "--set" "ComputerName" "HTserMac"
+  execute_sudo "/usr/sbin/scutil" "--set" "LocalHostName" "HTserMac"
+  execute_sudo "/usr/sbin/scutil" "--set" "HostName" "HTserMac"
+  # 將 Dock 移至左側
+  execute "defaults" "write" "com.apple.dock" "orientation" "-string" "left"
+  # 設定 Dock 圖示大小為 48 像素
+  execute "defaults" "write" "com.apple.dock" "tilesize" "-int" "48"
+  # 鎖定 Dock 大小不可被拖拽改變
+  execute "defaults" "write" "com.apple.dock" "size-immutable" "-bool" "true"
+  # 停用 Dock 放大效果
+  execute "defaults" "write" "com.apple.dock" "magnification" "-bool" "false"
+  # 啟用 Dock 自動隱藏
+  execute "defaults" "write" "com.apple.dock" "autohide" "-bool" "true"
+  # 移除 Dock 自動隱藏的延遲與動畫時間
+  execute "defaults" "write" "com.apple.dock" "autohide-time-modifier" "-float" "0"
+  execute "defaults" "write" "com.apple.dock" "autohide-delay" "-float" "0"
+  # 套用變更
+  execute "killall" "Dock"
+
+  # iTerm2 設定
+  ohai "Configuring iTerm2 settings..."
+  # 允許終端機程式存取剪貼簿
+  execute "defaults" "write" "com.googlecode.iterm2" "AllowClipboardAccess" "-bool" "true"
+  # 使用 Dark 主題
+  execute "defaults" "write" "com.googlecode.iterm2" "TabStyleWithAutomaticOption" "-int" "1"
+  # Tab bar 位置設於底部
+  execute "defaults" "write" "com.googlecode.iterm2" "TabViewType" "-int" "1"
+  # 只有一個 Tab 時也顯示 Tab bar
+  execute "defaults" "write" "com.googlecode.iterm2" "HideTab" "-bool" "false"
+  # 移除 Tab 上的關閉按鈕
+  execute "defaults" "write" "com.googlecode.iterm2" "TabsHaveCloseButton" "-bool" "false"
+
+  ohai "All Done!"
 ) || exit 1
