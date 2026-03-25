@@ -2,11 +2,9 @@
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # 載入 Apple Silicon 常見路徑下的 brew 環境變數，讓目前 shell 立即可用 brew 指令。
 eval "$(/opt/homebrew/bin/brew shellenv)"
-# 啟用常用 cask 倉庫（GUI 應用與版本變體）。
-brew tap homebrew/cask
-brew tap homebrew/cask-versions
 
-# 先更新 git 到最新版本，避免後續工具鏈因舊版 git 出現相容性問題。
+# 確保 git 已安裝且更新到最新版本，避免後續工具鏈因舊版 git 出現相容性問題。
+brew install git
 brew upgrade git
 
 # Python
@@ -14,22 +12,19 @@ brew upgrade git
 brew install python3
 pip install --upgrade pip
 
-# 安裝 pyenv，便於多版本 Python 管理與專案隔離。
-brew install pyenv
-
 # library
 
 # 基礎開發工具鏈與語言工具：
-# - rustup-init: Rust toolchain 管理
-# - go: Go 語言環境
-# - flutter: 跨平台 App SDK
-# - tfenv: Terraform 版本管理
-# - nvm: Node.js 版本管理
-brew install rustup-init
 brew install go
-brew install flutter
 brew install tfenv
 brew install nvm
+
+# 使用 nvm 安裝 Node.js (避免與 brew install node 衝突)
+export NVM_DIR="$HOME/.nvm"
+[ -d "$NVM_DIR" ] || mkdir -p "$NVM_DIR"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+nvm install --lts
+nvm alias default 'lts/*'
 
 # aws
 
@@ -59,59 +54,70 @@ security set-keychain-settings ~/Library/Keychains/aws-vault.keychain-db
 # IDE
 
 # 安裝常用 IDE/開發工具（註解提示可先行備份設定與外掛）。
-brew install --cask jetbrains-toolbox   #backup settings
-brew install --cask visual-studio-code  #backup settings and plugin
-brew install --cask warp        
-brew install --cask insomnia
-brew install --cask gitkraken
+brew install --cask cursor
+brew install --cask sublime-text
 
 # Containers
 # 容器與雲原生工具：k8s CLI、helm、Docker Desktop。
 brew install kubectl
-brew install helm      
+brew install helm
 brew install --cask docker
 
 # Misc
 
 # 日常工作與生產力工具（通訊、筆記、視窗管理、瀏覽器、同步工具等）。
+brew install --cask iterm2
 brew install --cask appcleaner
 brew install --cask deepl
 brew install --cask 1password
 brew install --cask 1password/tap/1password-cli
-brew install --cask alfred              
-brew install --cask eul
-brew install --cask cleanshot
-brew install --cask brave-browser
 brew install --cask slack
-brew install --cask obsidian
-brew install --cask mos
-brew install --cask rectangle
-brew install --cask todoist
-brew install --cask dropbox
-brew install --cask google-drive
-brew install --cask hiddenbar
+brew install --cask google-chrome
 brew install --cask arc
 brew install --cask notion
 brew install --cask discord
 brew install --cask miro
+brew install --cask rectangle
+brew install --cask hiddenbar
 brew install --cask daisydisk
 brew install --cask alt-tab
-brew install --cask http-toolkit
-brew install --cask zoom
 brew install --cask dropzone
+brew install --cask middleclick
+brew install --cask karabiner-elements
+brew install --cask monitorcontrol
+brew install --cask fork
+
+# Yahoo KeyKey!（ykk_installer：Yahoo 輸入法現代化安裝器）
+if [[ -d "/Library/Input Methods/Yahoo! KeyKey.app" ]]; then
+  echo "Yahoo KeyKey is already installed. Skipping..."
+else
+  YKK_URL="https://github.com/zonble/ykk_installer/releases/download/v3/YahooKeyKey.pkg.zip"
+  tmp_dir="$(/usr/bin/mktemp -d)"
+  curl -L "${YKK_URL}" -o "${tmp_dir}/YahooKeyKey.pkg.zip"
+  unzip -o "${tmp_dir}/YahooKeyKey.pkg.zip" -d "${tmp_dir}"
+  ykk_pkg_candidates=( "${tmp_dir}"/*.pkg )
+  if [[ ! -e "${ykk_pkg_candidates[0]}" ]]
+  then
+    echo "Yahoo KeyKey pkg not found under: ${tmp_dir}" >&2
+    rm -rf "${tmp_dir}"
+    exit 1
+  fi
+  sudo installer -pkg "${ykk_pkg_candidates[0]}" -target /
+  rm -f "${tmp_dir}/YahooKeyKey.pkg.zip"
+  rm -rf "${tmp_dir}"
+fi
 
 # Command line tools
 
-# 終端機常用工具集合（系統監控、JSON、搜尋、GitLab CLI、加密、壓測等）。
+# 終端機常用工具集合
 brew install htop
 brew install bottom
 brew install tmux
+brew install cmux
+brew install fzf
 brew install jq
 brew install fd
-brew install exa
-brew install dog
-brew install mysql-client
-brew install glab
-brew install gpg2
-brew install k6
-brew install gnupg
+brew install eza
+brew install rg
+brew install bat
+brew install gemini-cli
