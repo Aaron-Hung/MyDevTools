@@ -203,6 +203,8 @@ ohai "Downloading and installing Mac DevTool..."
   ln $PWD/Mac/.gitconfig ~/.gitconfig
   rm -f ~/.zshrc
   ln $PWD/Mac/.zshrc ~/.zshrc
+  rm -f ~/.tmux.conf
+  ln $PWD/Mac/.tmux.conf ~/.tmux.conf
   # 高風險警告：會先刪除既有 ~/.ssh 目錄再重建連結。
   # 代表原本 SSH 金鑰與設定若未備份，可能遺失。
   rm -rf ~/.ssh
@@ -218,8 +220,10 @@ ohai "Downloading and installing Mac DevTool..."
   
   # 步驟 5：安裝平台相依元件與套件管理工具。
   # - Rosetta：讓 Apple Silicon 可執行部分 x86_64 工具
+  # - tmux plugin manager (tpm)
   # - homebrew.sh：你的自訂 brew 安裝/設定流程
   execute "softwareupdate" "--install-rosetta" "--agree-to-license"
+  execute "/bin/sh" "-c" 'if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"; fi'
   sh $PWD/Mac/homebrew.sh
 
   # 步驟 6：系統偏好設定 (System Preferences)
